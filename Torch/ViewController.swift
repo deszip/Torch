@@ -9,25 +9,42 @@ import UIKit
 
 class ViewController: UIViewController, UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet weak var resultsTable: UITableView?
+    @IBOutlet weak var console: UITextView!
 
-    let index = SpotlightIndex()
+    var index: SpotlightIndex?
     var results: [String] = []
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+
+        index = SpotlightIndex() { self.log($0) }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        index.add(text: "Sun and moon")
-        index.add(text: "Sol and luna")
+        index?.add(chunks: ["Sun and moon", "Sol and luna"])
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.index.search(searchText) { results in
+        self.index?.search(searchText) { results in
             DispatchQueue.main.async {
                 self.results = results
                 self.resultsTable?.reloadData()
             }
         }
     }
+
+    // MARK: - Console
+
+    private func log(_ text: String) {
+        DispatchQueue.main.async {
+            self.console.text = self.console.text + text + "\n"
+            self.console.scrollRangeToVisible(NSMakeRange(self.console.text.lengthOfBytes(using: .utf8) - 1, 1))
+        }
+    }
+
+    // MARK: - UITableViewDataSource
 
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -45,4 +62,3 @@ class ViewController: UIViewController, UISearchBarDelegate, UITableViewDataSour
     }
 
 }
-
