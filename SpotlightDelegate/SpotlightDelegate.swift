@@ -14,6 +14,7 @@ class SpotlightDelegate: CSIndexExtensionRequestHandler {
     }
 
     override func searchableIndex(_ searchableIndex: CSSearchableIndex, reindexSearchableItemsWithIdentifiers identifiers: [String], acknowledgementHandler: @escaping () -> Void) {
+        acknowledgementHandler()
     }
 
     override func data(for searchableIndex: CSSearchableIndex, itemIdentifier: String, typeIdentifier: String) throws -> Data {

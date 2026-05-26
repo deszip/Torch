@@ -11,10 +11,15 @@ typealias SearchResult = ([String]) -> Void
 
 class SpotlightIndex: NSObject, CSSearchableIndexDelegate {
     private let index: CSSearchableIndex
+    private var logHistory: [String] = []
 
-    var logHandler: ((String) -> Void)?
+    var logHandler: ((String) -> Void)? {
+        didSet {
+            logHistory.forEach { self.log($0) }
+        }
+    }
 
-    init(_ logHandler: ((String) -> Void)?) {
+    init(_ logHandler: ((String) -> Void)? = nil) {
         self.logHandler = logHandler
         self.index = CSSearchableIndex(name: "TorchIndex")
 
@@ -24,6 +29,12 @@ class SpotlightIndex: NSObject, CSSearchableIndexDelegate {
         self.index.deleteAllSearchableItems() { error in
             self.logHandler?("Dropped indexed items, error: \(error.debugDescription)")
         }
+    }
+
+    private func log(_ text: String) {
+        self.logHistory.append(text)
+        self.logHandler?(text)
+        print("[Index]: \(text)")
     }
 
     func add(chunks: [String]) {
@@ -58,7 +69,7 @@ class SpotlightIndex: NSObject, CSSearchableIndexDelegate {
         let c = CSUserQueryContext()
         c.fetchAttributes = ["title", "contentDescription", "textContent"]
         c.enableRankedResults = true
-        c.maxRankedResultCount = 2
+//        c.maxRankedResultCount = 2
 //        c.disableSemanticSearch = true
         let q = CSUserQuery(userQueryString: query, userQueryContext: c)
 
@@ -68,17 +79,20 @@ class SpotlightIndex: NSObject, CSSearchableIndexDelegate {
 
     func runQuery_new(query: CSUserQuery, handler: @escaping SearchResult) {
         Task {
-            var responses: [String] = []
-            for try await element in query.responses {
-                self.logHandler?("Got response element: \(element)")
-                switch element {
-                case .item(let item):
-                    responses.append(item.item.attributeSet.textContent ?? "")
-                default: ()
+            do {
+                var responses: [String] = []
+                for try await element in query.responses {
+                    self.logHandler?("Got response element: \(element)")
+                    switch element {
+                    case .item(let item):
+                        responses.append(item.item.attributeSet.textContent ?? "")
+                    default: ()
+                    }
                 }
+                handler(responses)
+            } catch {
+                self.logHandler?("Search failed: \(error)")
             }
-
-            handler(responses)
         }
     }
 

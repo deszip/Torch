@@ -17,7 +17,8 @@ class ViewController: UIViewController, UISearchBarDelegate, UITableViewDataSour
     required init?(coder: NSCoder) {
         super.init(coder: coder)
 
-        index = SpotlightIndex() { self.log($0) }
+        self.index = (UIApplication.shared.delegate as? AppDelegate)?.index
+        self.index?.logHandler = self.log
     }
 
     override func viewDidLoad() {
@@ -41,6 +42,7 @@ class ViewController: UIViewController, UISearchBarDelegate, UITableViewDataSour
         DispatchQueue.main.async {
             self.console.text = self.console.text + text + "\n"
             self.console.scrollRangeToVisible(NSMakeRange(self.console.text.lengthOfBytes(using: .utf8) - 1, 1))
+            print(text)
         }
     }
 
@@ -55,7 +57,7 @@ class ViewController: UIViewController, UISearchBarDelegate, UITableViewDataSour
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ReesultCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "ResultCell", for: indexPath)
         cell.textLabel?.text = self.results[indexPath.item]
 
         return cell
