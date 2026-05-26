@@ -65,43 +65,46 @@ enum SearchKeyboardLanguage: String, CaseIterable, Identifiable {
 }
 
 @MainActor
-final class SpotlightDemoStore: ObservableObject {
+final class SpotlightDemoStore: NSObject, ObservableObject {
+    
     @Published private(set) var indexedItems: [IndexedTextItem] = []
     @Published private(set) var searchResults: [SpotlightSearchResult] = []
     @Published var query = ""
     @Published var options = SpotlightSearchOptions()
     @Published private(set) var status = "Ready"
-
+    
     private let index = CSSearchableIndex(name: "Torch2SemanticSearch")
     private let domainIdentifier = "RD.Torch2.semantic-demo"
     private let defaultsKey = "Torch2.IndexedTextItems"
     private var searchTask: Task<Void, Never>?
     private var didPrepareSearch = false
-
-    init() {
-        loadCatalog()
-        prepareSearch()
+    
+    override init() {
+        super.init()
+        
+        self.loadCatalog()
+        self.prepareSearch()
     }
-
+    
     func prepareSearch() {
         guard !didPrepareSearch else { return }
-
+        
         didPrepareSearch = true
         status = "Preparing Spotlight semantic search..."
-
+        
         Task {
             CSUserQuery.prepare()
             status = "Spotlight search is ready."
         }
     }
-
+    
     func addItem(title: String, body: String, keywordsText: String) {
         let trimmedBody = body.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedBody.isEmpty else {
             status = "Enter text before adding an item."
             return
         }
-
+        
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         let item = IndexedTextItem(
             id: UUID().uuidString,
@@ -110,7 +113,7 @@ final class SpotlightDemoStore: ObservableObject {
             keywords: parsedKeywords(from: keywordsText),
             createdAt: Date()
         )
-
+        
         index.indexSearchableItems([searchableItem(from: item)]) { error in
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -118,15 +121,14 @@ final class SpotlightDemoStore: ObservableObject {
                     self.status = "Indexing failed: \(error.localizedDescription)"
                     return
                 }
-
+                
                 self.indexedItems.insert(item, at: 0)
                 self.saveCatalog()
                 self.status = "Added 1 item to Spotlight."
-                self.runSearch()
             }
         }
     }
-
+    
     func addSampleItems() {
         let samples = [
             IndexedTextItem(
@@ -165,7 +167,7 @@ final class SpotlightDemoStore: ObservableObject {
                 createdAt: Date()
             )
         ]
-
+        
         index.indexSearchableItems(samples.map(searchableItem(from:))) { error in
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -173,15 +175,14 @@ final class SpotlightDemoStore: ObservableObject {
                     self.status = "Sample indexing failed: \(error.localizedDescription)"
                     return
                 }
-
+                
                 self.indexedItems.insert(contentsOf: samples, at: 0)
                 self.saveCatalog()
                 self.status = "Added \(samples.count) sample items."
-                self.runSearch()
             }
         }
     }
-
+    
     func deleteItem(_ item: IndexedTextItem) {
         index.deleteSearchableItems(withIdentifiers: [item.id]) { error in
             Task { @MainActor [weak self] in
@@ -190,7 +191,7 @@ final class SpotlightDemoStore: ObservableObject {
                     self.status = "Delete failed: \(error.localizedDescription)"
                     return
                 }
-
+                
                 self.indexedItems.removeAll { $0.id == item.id }
                 self.searchResults.removeAll { $0.id == item.id }
                 self.saveCatalog()
@@ -198,7 +199,7 @@ final class SpotlightDemoStore: ObservableObject {
             }
         }
     }
-
+    
     func cleanIndex() {
         index.deleteSearchableItems(withDomainIdentifiers: [domainIdentifier]) { error in
             Task { @MainActor [weak self] in
@@ -207,7 +208,7 @@ final class SpotlightDemoStore: ObservableObject {
                     self.status = "Clean failed: \(error.localizedDescription)"
                     return
                 }
-
+                
                 self.indexedItems.removeAll()
                 self.searchResults.removeAll()
                 self.saveCatalog()
@@ -215,22 +216,22 @@ final class SpotlightDemoStore: ObservableObject {
             }
         }
     }
-
+    
     func runSearch() {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         searchTask?.cancel()
-
+        
         guard !trimmedQuery.isEmpty else {
             searchResults = []
             return
         }
-
+        
         let currentOptions = options
         status = "Searching..."
-
+        
         searchTask = Task { [weak self] in
             guard let self else { return }
-
+            
             do {
                 let context = CSUserQueryContext()
                 context.fetchAttributes = [
@@ -245,22 +246,22 @@ final class SpotlightDemoStore: ObservableObject {
                 context.enableRankedResults = currentOptions.rankedResultsEnabled
                 context.disableSemanticSearch = !currentOptions.semanticSearchEnabled
                 context.maxRankedResultCount = currentOptions.maxRankedResultCount
-
+                
                 let query = CSUserQuery(userQueryString: trimmedQuery, userQueryContext: context)
                 var foundItems: [CSSearchableItem] = []
-
+                
                 for try await response in query.responses {
                     try Task.checkCancellation()
-
+                    
                     if case .item(let match) = response {
                         foundItems.append(match.item)
                     }
                 }
-
+                
                 try Task.checkCancellation()
                 let sortedItems = currentOptions.rankedResultsEnabled
-                    ? foundItems.sorted { $0.compare(byRank: $1) == .orderedAscending }
-                    : foundItems
+                ? foundItems.sorted { $0.compare(byRank: $1) == .orderedAscending }
+                : foundItems
                 let results = sortedItems.map { searchableItem in
                     let attributes = searchableItem.attributeSet
                     return SpotlightSearchResult(
@@ -269,7 +270,7 @@ final class SpotlightDemoStore: ObservableObject {
                         body: attributes.textContent ?? attributes.contentDescription ?? ""
                     )
                 }
-
+                
                 self.searchResults = results
                 let language = currentOptions.keyboardLanguage.title
                 self.status = "Found \(results.count) result\(results.count == 1 ? "" : "s"). Language: \(language). Semantic: \(currentOptions.semanticSearchEnabled ? "on" : "off")."
@@ -281,7 +282,7 @@ final class SpotlightDemoStore: ObservableObject {
             }
         }
     }
-
+    
     private func searchableItem(from item: IndexedTextItem) -> CSSearchableItem {
         let attributes = CSSearchableItemAttributeSet(contentType: .text)
         attributes.title = item.title
@@ -289,7 +290,7 @@ final class SpotlightDemoStore: ObservableObject {
         attributes.contentDescription = item.body
         attributes.textContent = item.body
         attributes.keywords = item.keywords
-
+        
         let searchableItem = CSSearchableItem(
             uniqueIdentifier: item.id,
             domainIdentifier: domainIdentifier,
@@ -298,7 +299,7 @@ final class SpotlightDemoStore: ObservableObject {
         searchableItem.expirationDate = .distantFuture
         return searchableItem
     }
-
+    
     private func parsedKeywords(from text: String) -> [String] {
         text
             .split { character in
@@ -307,7 +308,7 @@ final class SpotlightDemoStore: ObservableObject {
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
     }
-
+    
     private func loadCatalog() {
         guard
             let data = UserDefaults.standard.data(forKey: defaultsKey),
@@ -315,10 +316,10 @@ final class SpotlightDemoStore: ObservableObject {
         else {
             return
         }
-
+        
         indexedItems = decoded
     }
-
+    
     private func saveCatalog() {
         if let data = try? JSONEncoder().encode(indexedItems) {
             UserDefaults.standard.set(data, forKey: defaultsKey)

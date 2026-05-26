@@ -29,6 +29,7 @@
 		D99A87222C36FB8400228DF5 /* TorchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99A87212C36FB8400228DF5 /* TorchTests.swift */; };
 		D99A872C2C36FB8400228DF5 /* TorchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99A872B2C36FB8400228DF5 /* TorchUITests.swift */; };
 		D99A872E2C36FB8400228DF5 /* TorchUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D99A872D2C36FB8400228DF5 /* TorchUITestsLaunchTests.swift */; };
+		D9DBCA362FC5EB3A0069653A /* SpotlightDelegate.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D92F08C12C5150C8001535D4 /* SpotlightDelegate.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,13 @@
 			remoteGlobalIDString = D99A87062C36FB8300228DF5;
 			remoteInfo = Torch;
 		};
+		D9DBCA372FC5EB3A0069653A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D99A86FF2C36FB8300228DF5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D92F08C02C5150C8001535D4;
+			remoteInfo = SpotlightDelegate;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -77,6 +85,17 @@
 			dstSubfolderSpec = 13;
 			files = (
 				D92F08C82C5150C8001535D4 /* SpotlightDelegate.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D9DBCA392FC5EB3A0069653A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				D9DBCA362FC5EB3A0069653A /* SpotlightDelegate.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -244,6 +263,7 @@
 				D90A87CD2C381DE9004D57E8 /* TorchObjcUITests */,
 				D92F08C22C5150C8001535D4 /* SpotlightDelegate */,
 				D9DBCA272FC5966E0069653A /* Torch2 */,
+				D9DBCA352FC5EB3A0069653A /* Frameworks */,
 				D99A87082C36FB8300228DF5 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -293,6 +313,13 @@
 				D99A872D2C36FB8400228DF5 /* TorchUITestsLaunchTests.swift */,
 			);
 			path = TorchUITests;
+			sourceTree = "<group>";
+		};
+		D9DBCA352FC5EB3A0069653A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -435,10 +462,12 @@
 				D9DBCA222FC5966E0069653A /* Sources */,
 				D9DBCA232FC5966E0069653A /* Frameworks */,
 				D9DBCA242FC5966E0069653A /* Resources */,
+				D9DBCA392FC5EB3A0069653A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				D9DBCA382FC5EB3A0069653A /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				D9DBCA272FC5966E0069653A /* Torch2 */,
@@ -680,6 +709,11 @@
 			target = D99A87062C36FB8300228DF5 /* Torch */;
 			targetProxy = D99A87282C36FB8400228DF5 /* PBXContainerItemProxy */;
 		};
+		D9DBCA382FC5EB3A0069653A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D92F08C02C5150C8001535D4 /* SpotlightDelegate */;
+			targetProxy = D9DBCA372FC5EB3A0069653A /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -862,7 +896,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RS.Torch.SpotlightDelegate;
+				PRODUCT_BUNDLE_IDENTIFIER = RD.Torch2.SpotlightDelegate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "DEV Wildcard";
@@ -891,7 +925,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = RS.Torch.SpotlightDelegate;
+				PRODUCT_BUNDLE_IDENTIFIER = RD.Torch2.SpotlightDelegate;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "DEV Wildcard";
@@ -1158,9 +1192,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AM5334753U;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3L68KQB4HG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1176,6 +1212,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = RD.Torch2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "DEV Wildcard";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
@@ -1191,9 +1229,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = AM5334753U;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 3L68KQB4HG;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -1209,6 +1249,8 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = RD.Torch2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "DEV Wildcard";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
